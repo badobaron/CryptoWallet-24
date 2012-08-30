@@ -1,0 +1,11 @@
+crypto wallet
+
+Web Logins:icon=/usr/share/someicon:title,username,password*,comments
+PC logins:icon=/usr/share/someicon:title,username,password*,comments
+Credit/Debit Cards:icon=/usr/share/someicon:title,username,password*,extra password/phrase*,card number,cvv*,start date,expiry date,comments
+Computer:icon=/usr/share/someicon/title,username,password*,comments
+
+
+USER DATA
+
+END USER DATA
