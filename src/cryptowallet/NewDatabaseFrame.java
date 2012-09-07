@@ -22,7 +22,7 @@ public class NewDatabaseFrame extends javax.swing.JFrame {
     private boolean gotPassword1=false;
     //private boolean gotPassword2=false;
     private char[] password1;
-    private char[] password2;
+    private byte [] saltValue;
     
     public NewDatabaseFrame() {
         initComponents();
@@ -161,28 +161,38 @@ public class NewDatabaseFrame extends javax.swing.JFrame {
     }//GEN-LAST:event_createNewDBButtonActionPerformed
     
     
-    private void generatePasswordHashAndSalt(){
-        byte[] saltValue=HashFunctions.generateSaltValue();
-        //Convert.charArrayToBytes(password1)
-        byte[] pwBytes=Convert.charArrayToBytes(password1);
-        byte[] pwHash=HashFunctions.hashPassword(pwBytes,"SHA-512", 1000, saltValue);
-        
-        //now we need to store the hash and salt values in db file
-        if(!CryptoWalletDB.writeHashFile(Convert.bytesToHexString(pwHash), Convert.bytesToHexString(saltValue))){
-            JOptionPane.showMessageDialog(rootPane, "Error writing hash.txt","Cryptowallet Message",JOptionPane.ERROR_MESSAGE);
+    private void generatePasswordHashAndSalt() {
+        try{
+            saltValue=HashFunctions.generateSaltValue();
+            //Convert.charArrayToBytes(password1)
+            byte[] pwBytes=Convert.charArrayToBytes(password1);
+            byte[] pwHash=HashFunctions.hashPassword(pwBytes,"SHA-512", 1000, saltValue);
+       
+            //now we need to store the hash and salt values in db file
+            if(!CryptoWalletDB.writeHashFile(Convert.bytesToHexString(pwHash), Convert.bytesToHexString(saltValue))){
+                JOptionPane.showMessageDialog(rootPane, "Error writing hash.txt","Cryptowallet Message",JOptionPane.ERROR_MESSAGE);
+            }
+        }
+        catch(Exception e){
+             JOptionPane.showMessageDialog(rootPane, "Error generating password/salt","Cryptowallet Message",JOptionPane.ERROR_MESSAGE);
         }
         
-        //clear the passwords
-        Arrays.fill(password1, '0');
-        Arrays.fill(password2, '0');
+        
         
     }       
     
     
-    private void generateNewDB(){
-        if(!CryptoWalletDB.writeNewBlankDatabase()){
-            JOptionPane.showMessageDialog(rootPane, "Error writing new database file","Cryptowallet Message",JOptionPane.ERROR_MESSAGE);
+    private void generateNewDB() {
+        try{
+            CryptoWalletDB cryptoDB=new CryptoWalletDB(password1,saltValue);
+            if(!cryptoDB.writeNewBlankDatabase()){
+                JOptionPane.showMessageDialog(rootPane, "Error writing new database file\n Check cryptoWallet_template.txt exists","Cryptowallet Message",JOptionPane.ERROR_MESSAGE);
+            }
+        }    
+        catch(Exception e){
+            
         }
+            
     }
     
     //Check to see if user has pressed return when entering password
@@ -197,12 +207,15 @@ public class NewDatabaseFrame extends javax.swing.JFrame {
             }
             else if (gotPassword1){
                 //user is confirming the password
-                password2=newPasswordText.getPassword();
+                char[] password2=newPasswordText.getPassword();
                 //do the passwords match?
                 if (Arrays.equals(password1, password2)){
                     System.out.println("PASSWORDS MATCH!!!!!!!!!!!!!");
                     this.generatePasswordHashAndSalt();
                     this.generateNewDB();
+                    //clear the passwords
+                    Arrays.fill(password1, '0');
+                    Arrays.fill(password2, '0');
                 }
                 else{
                     System.out.println("PASSWORDS DO NOT MATCH!!!!!!!!!!!!!");
