@@ -62,9 +62,9 @@ public class CipherFunctions
         return encryptedText;
     }  
 
-    public void setKey(String password, String salt) throws Exception
+    public void setKey(char[] password, byte[] salt) throws Exception
     {       
-        PBEKeySpec keySpec = new PBEKeySpec(password.toCharArray(), salt.getBytes(), 1000, 128);  
+        PBEKeySpec keySpec = new PBEKeySpec(password, salt, 1000, 128);  
         SecretKeyFactory factory = SecretKeyFactory.getInstance("PBKDF2WithHmacSHA1");    
         this.secretKey = new SecretKeySpec(factory.generateSecret(keySpec).getEncoded(), this.cipherAlg);  
     }
