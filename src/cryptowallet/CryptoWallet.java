@@ -41,19 +41,16 @@ public class CryptoWallet extends javax.swing.JFrame {
             java.util.logging.Logger.getLogger(NewDatabaseFrame.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
         }
         //</editor-fold>
-
-       
+        
         if (checkDatabaseExists()){
-            JFrame pwFrame = new PasswordFrame();
-            pwFrame.setLocationRelativeTo(null);
-            pwFrame.setVisible(true);
-            
+            JFrame mainFrame = new MainFrame();
+            mainFrame.setLocationRelativeTo(null);
+            mainFrame.setVisible(false);
         }
         else{
             JFrame dbFrame = new NewDatabaseFrame();
             dbFrame.setLocationRelativeTo(null);
             dbFrame.setVisible(true);
-            System.out.println("returned from jframe!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
         }
     }
     

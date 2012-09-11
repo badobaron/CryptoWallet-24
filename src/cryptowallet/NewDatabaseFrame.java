@@ -7,6 +7,7 @@ package cryptowallet;
 import extrautils.Convert;
 import java.awt.event.KeyEvent;
 import java.util.Arrays;
+import javax.swing.JFrame;
 import javax.swing.JOptionPane;
 
 /**
@@ -26,6 +27,8 @@ public class NewDatabaseFrame extends javax.swing.JFrame {
     
     public NewDatabaseFrame() {
         initComponents();
+
+        
     }
 
     /**
@@ -178,10 +181,15 @@ public class NewDatabaseFrame extends javax.swing.JFrame {
              JOptionPane.showMessageDialog(rootPane, "Error generating password/salt",
                      "Cryptowallet Message",JOptionPane.ERROR_MESSAGE);
         }
-        
-        
-        
-    }       
+    } 
+    
+    
+    //shows the main frame, will ask user for password
+    private void showMainFrame(){
+        JFrame mainFrame = new MainFrame();
+        mainFrame.setLocationRelativeTo(null);
+        mainFrame.setVisible(false);
+    }
     
     
     private void generateNewDB() {
@@ -195,6 +203,9 @@ public class NewDatabaseFrame extends javax.swing.JFrame {
         catch(Exception e){
             JOptionPane.showMessageDialog(rootPane,"Error writing new database file\n"+e.getMessage());
         }
+        
+        //now we can show the main frame
+        showMainFrame();
         
         this.dispose();
             

@@ -4,6 +4,8 @@
  */
 package cryptowallet;
 
+import javax.swing.JFrame;
+
 /**
  *
  * @author marc
@@ -15,6 +17,10 @@ public class MainFrame extends javax.swing.JFrame {
      */
     public MainFrame() {
         initComponents();
+        
+        JFrame pwFrame = new PasswordFrame();
+        pwFrame.setLocationRelativeTo(null);
+        pwFrame.setVisible(true);
     }
 
     /**
