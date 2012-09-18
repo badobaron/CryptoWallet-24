@@ -10,8 +10,11 @@
  */
 package cryptowallet;
 
+import extrautils.Convert;
 import java.awt.event.KeyEvent;
 import java.util.Arrays;
+import javax.swing.JFrame;
+import javax.swing.JOptionPane;
 
 /**
  *
@@ -42,7 +45,7 @@ public class PasswordFrame extends javax.swing.JFrame {
         jTextPane1 = new javax.swing.JTextPane();
         passwordText = new javax.swing.JPasswordField();
         passwordLabel = new javax.swing.JLabel();
-        pwOKButton = new javax.swing.JButton();
+        jButton1 = new javax.swing.JButton();
 
         jLabel2.setText("jLabel2");
 
@@ -74,10 +77,10 @@ public class PasswordFrame extends javax.swing.JFrame {
         passwordLabel.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(0, 0, 0)));
         passwordLabel.setOpaque(true);
 
-        pwOKButton.setText("OK");
-        pwOKButton.addMouseListener(new java.awt.event.MouseAdapter() {
-            public void mouseClicked(java.awt.event.MouseEvent evt) {
-                pwOKButtonMouseClicked(evt);
+        jButton1.setLabel("cancelButton");
+        jButton1.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButton1ActionPerformed(evt);
             }
         });
 
@@ -89,37 +92,43 @@ public class PasswordFrame extends javax.swing.JFrame {
                 .addContainerGap()
                 .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
                     .add(layout.createSequentialGroup()
-                        .add(passwordText, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 274, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.UNRELATED)
-                        .add(pwOKButton, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 76, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                        .add(0, 0, Short.MAX_VALUE))
-                    .add(passwordLabel, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-                .addContainerGap())
+                        .add(passwordLabel, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 362, Short.MAX_VALUE)
+                        .addContainerGap())
+                    .add(org.jdesktop.layout.GroupLayout.TRAILING, layout.createSequentialGroup()
+                        .add(0, 0, Short.MAX_VALUE)
+                        .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
+                            .add(org.jdesktop.layout.GroupLayout.TRAILING, layout.createSequentialGroup()
+                                .add(passwordText, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 274, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                                .add(52, 52, 52))
+                            .add(org.jdesktop.layout.GroupLayout.TRAILING, layout.createSequentialGroup()
+                                .add(jButton1)
+                                .addContainerGap())))))
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
             .add(layout.createSequentialGroup()
                 .add(18, 18, 18)
                 .add(passwordLabel, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 35, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(org.jdesktop.layout.LayoutStyle.UNRELATED)
-                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
-                    .add(passwordText, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                    .add(pwOKButton))
-                .addContainerGap(56, Short.MAX_VALUE))
+                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .add(jButton1)
+                .add(18, 18, 18)
+                .add(passwordText, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                .add(23, 23, 23))
         );
 
         pack();
     }// </editor-fold>//GEN-END:initComponents
 
-    private void pwOKButtonMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_pwOKButtonMouseClicked
-        // TODO add your handling code here:
-       
-    }//GEN-LAST:event_pwOKButtonMouseClicked
-
     private void passwordTextActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_passwordTextActionPerformed
         // TODO add your handling code here:
     }//GEN-LAST:event_passwordTextActionPerformed
 
+    private void showMainFrame(){
+        JFrame mainFrame = new MainFrame();
+        mainFrame.setLocationRelativeTo(null);
+        mainFrame.setVisible(false);
+    }
+    
     private void passwordTextKeyPressed(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_passwordTextKeyPressed
         // TODO add your handling code here:
         if(evt.getKeyCode() == KeyEvent.VK_ENTER) {
@@ -135,7 +144,16 @@ public class PasswordFrame extends javax.swing.JFrame {
                 //do the passwords match?
                 if (Arrays.equals(password1, password2)){
                     //passwords match so check hash against stored value
-                    checkPasswordHashes(password1);
+                    if(!checkPasswordHashes(password1)){
+                        gotPassword1=false;
+                         passwordText.setText("");
+                        passwordLabel.setText("Enter Master Password");
+                    }
+                    else{
+                        //passed so we can now show the main form
+                        showMainFrame();
+                        this.dispose();
+                    }
                    
                     //clear the passwords
                     Arrays.fill(password1, '0');
@@ -152,18 +170,37 @@ public class PasswordFrame extends javax.swing.JFrame {
         }
     }//GEN-LAST:event_passwordTextKeyPressed
 
+    private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
+        this.dispose();
+    }//GEN-LAST:event_jButton1ActionPerformed
+
     
-    private void checkPasswordHashes(char[] passwordEntered){
+    private boolean checkPasswordHashes(char[] passwordEntered){
         //get stored hash and salt value
-        CryptoWalletDB.HashSalt hashSalt = CryptoWalletDB.readHashAndSalt();
-        if (!hashSalt.hash.isEmpty() && !hashSalt.salt.isEmpty()){
+        boolean result=true;
+        CryptoWalletDB.PWCredentials credentials = CryptoWalletDB.readHashAndSalt();
+        if (!credentials.hash.isEmpty() && !credentials.salt.isEmpty()){
+            
+            //hash the given password
+            byte[] pwBytes=Convert.charArrayToBytes(password1);
+            byte[] pwHash=HashFunctions.hashPassword(pwBytes,"SHA-512", 
+                    1000, Convert.stringToHexBytes(credentials.salt));
+            String genHash=Convert.bytesToHexString(pwHash);
+            
+            //check the hashes match
+            if (genHash.compareTo(credentials.hash)!=0){
+                JOptionPane.showMessageDialog(rootPane,"Password in incorrect");
+                result=false;
+            }
+             
             
         }
         else{
-            //error getting passord hash and salt from file
+            JOptionPane.showMessageDialog(rootPane,"Could not get stored hash from file");
+            result=false;
         }
         
-        //get hash of password entered by the user
+        return result;
     }
     
     
@@ -174,11 +211,11 @@ public class PasswordFrame extends javax.swing.JFrame {
      */
    
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.JButton jButton1;
     private javax.swing.JLabel jLabel2;
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JTextPane jTextPane1;
     private javax.swing.JLabel passwordLabel;
     private javax.swing.JPasswordField passwordText;
-    private javax.swing.JButton pwOKButton;
     // End of variables declaration//GEN-END:variables
 }
