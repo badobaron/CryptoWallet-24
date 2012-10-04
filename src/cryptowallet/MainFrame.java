@@ -5,6 +5,8 @@
 package cryptowallet;
 
 import javax.swing.JFrame;
+import javax.swing.JOptionPane;
+import java.util.ArrayList;
 
 /**
  *
@@ -19,10 +21,23 @@ public class MainFrame extends javax.swing.JFrame {
     
     public MainFrame(CryptoWalletDB database) {
         initComponents();
-        
+       
+        walletDB=database;
         this.setLocationRelativeTo(null);
         this.setVisible(true);
-
+        
+        //decrypt the database
+        ArrayList<String>dataList=new ArrayList<String>();
+        try{
+            dataList=walletDB.decryptDatabase();
+            //now we need to sort the data into groups etc.....
+            
+        
+        }
+        catch(Exception e){
+            JOptionPane.showMessageDialog(rootPane, e.getMessage(),"Cryptowallet Message",
+                        JOptionPane.ERROR_MESSAGE);
+        }
     }
     
     //public void setDatabase(CryptoWalletDB database){
@@ -38,38 +53,62 @@ public class MainFrame extends javax.swing.JFrame {
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
 
-        jToggleButton1 = new javax.swing.JToggleButton();
+        jSplitPane1 = new javax.swing.JSplitPane();
+        jScrollPane2 = new javax.swing.JScrollPane();
+        groupList = new javax.swing.JList();
+        jScrollPane1 = new javax.swing.JScrollPane();
+        itemList = new javax.swing.JList();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
+        setTitle("Crypto Wallet");
 
-        jToggleButton1.setText("jToggleButton1");
+        jScrollPane2.setMinimumSize(new java.awt.Dimension(200, 22));
+
+        groupList.setModel(new javax.swing.AbstractListModel() {
+            String[] strings = { "Item 1", "Item 2", "Item 3", "Item 4", "Item 5" };
+            public int getSize() { return strings.length; }
+            public Object getElementAt(int i) { return strings[i]; }
+        });
+        jScrollPane2.setViewportView(groupList);
+
+        jSplitPane1.setLeftComponent(jScrollPane2);
+
+        itemList.setModel(new javax.swing.AbstractListModel() {
+            String[] strings = { "Item 1", "Item 2", "Item 3", "Item 4", "Item 5" };
+            public int getSize() { return strings.length; }
+            public Object getElementAt(int i) { return strings[i]; }
+        });
+        jScrollPane1.setViewportView(itemList);
+
+        jSplitPane1.setRightComponent(jScrollPane1);
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(layout.createSequentialGroup()
-                .addGap(163, 163, 163)
-                .addComponent(jToggleButton1)
-                .addContainerGap(435, Short.MAX_VALUE))
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
+                .addGap(31, 31, 31)
+                .addComponent(jSplitPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 658, Short.MAX_VALUE)
+                .addGap(51, 51, 51))
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
-                .addGap(190, 190, 190)
-                .addComponent(jToggleButton1)
-                .addContainerGap(248, Short.MAX_VALUE))
+                .addGap(38, 38, 38)
+                .addComponent(jSplitPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 380, Short.MAX_VALUE)
+                .addGap(45, 45, 45))
         );
 
         pack();
     }// </editor-fold>//GEN-END:initComponents
 
-    public void verifyPasswordHash(String genPasswordHash){
-        
-    }
     
     
     // Variables declaration - do not modify//GEN-BEGIN:variables
-    private javax.swing.JToggleButton jToggleButton1;
+    private javax.swing.JList groupList;
+    private javax.swing.JList itemList;
+    private javax.swing.JScrollPane jScrollPane1;
+    private javax.swing.JScrollPane jScrollPane2;
+    private javax.swing.JSplitPane jSplitPane1;
     // End of variables declaration//GEN-END:variables
 }
