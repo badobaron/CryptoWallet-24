@@ -27,6 +27,8 @@ public class NewDatabaseFrame extends javax.swing.JFrame {
     
     public NewDatabaseFrame() {
         initComponents();
+        this.setLocationRelativeTo(null);
+        this.setVisible(true);
 
         
     }
@@ -49,6 +51,7 @@ public class NewDatabaseFrame extends javax.swing.JFrame {
         jTextArea1 = new javax.swing.JTextArea();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
+        setTitle("Crypto Wallet");
 
         createNewDBButton.setText("Yes");
         createNewDBButton.addActionListener(new java.awt.event.ActionListener() {
@@ -159,6 +162,7 @@ public class NewDatabaseFrame extends javax.swing.JFrame {
         newPasswordLabel.setEnabled(true);
         newPasswordText.setEnabled(true);
         createNewDBButton.setEnabled(false);
+        newPasswordText.setEchoChar('#');
         newPasswordText.grabFocus();
         
     }//GEN-LAST:event_createNewDBButtonActionPerformed
@@ -173,7 +177,7 @@ public class NewDatabaseFrame extends javax.swing.JFrame {
        
             //now we need to store the hash and salt values in db file
             if(!CryptoWalletDB.writeHashFile(Convert.bytesToHexString(pwHash), Convert.bytesToHexString(saltValue))){
-                JOptionPane.showMessageDialog(rootPane, "Error writing hash.txt","Cryptowallet Message",
+                JOptionPane.showMessageDialog(rootPane, "Error writing hash","Cryptowallet Message",
                         JOptionPane.ERROR_MESSAGE);
             }
         }
@@ -181,14 +185,6 @@ public class NewDatabaseFrame extends javax.swing.JFrame {
              JOptionPane.showMessageDialog(rootPane, "Error generating password/salt",
                      "Cryptowallet Message",JOptionPane.ERROR_MESSAGE);
         }
-    } 
-    
-    
-    //shows the main frame, will ask user for password
-    private void showMainFrame(){
-        JFrame mainFrame = new MainFrame();
-        mainFrame.setLocationRelativeTo(null);
-        mainFrame.setVisible(false);
     }
     
     
@@ -199,13 +195,14 @@ public class NewDatabaseFrame extends javax.swing.JFrame {
                 JOptionPane.showMessageDialog(rootPane, "Error writing new database file\n Check cryptoWallet_template.txt exists","Cryptowallet Message"
                         ,JOptionPane.ERROR_MESSAGE);
             }
+            else{
+                //now we can show the main frame
+                new MainFrame(cryptoDB);
+            }
         }    
         catch(Exception e){
             JOptionPane.showMessageDialog(rootPane,"Error writing new database file\n"+e.getMessage());
         }
-        
-        //now we can show the main frame
-        showMainFrame();
         
         this.dispose();
             
@@ -226,7 +223,6 @@ public class NewDatabaseFrame extends javax.swing.JFrame {
                 char[] password2=newPasswordText.getPassword();
                 //do the passwords match?
                 if (Arrays.equals(password1, password2)){
-                    System.out.println("PASSWORDS MATCH!!!!!!!!!!!!!");
                     this.generatePasswordHashAndSalt();
                     this.generateNewDB();
                     //clear the passwords
@@ -234,7 +230,7 @@ public class NewDatabaseFrame extends javax.swing.JFrame {
                     Arrays.fill(password2, '0');
                 }
                 else{
-                    System.out.println("PASSWORDS DO NOT MATCH!!!!!!!!!!!!!");
+                    JOptionPane.showMessageDialog(rootPane,"Passwords do not match\n");
                     gotPassword1=false;
                     newPasswordText.setText("");
                     newPasswordLabel.setText("Enter New Master Password");
