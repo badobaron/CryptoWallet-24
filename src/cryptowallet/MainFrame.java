@@ -4,9 +4,11 @@
  */
 package cryptowallet;
 
-import javax.swing.JFrame;
+import java.util.Map;
+import javax.swing.DefaultListModel;
 import javax.swing.JOptionPane;
-import java.util.ArrayList;
+import org.json.simple.JSONObject;
+import org.json.simple.JSONArray;
 
 /**
  *
@@ -17,7 +19,15 @@ public class MainFrame extends javax.swing.JFrame {
     /**
      * Creates new form MainFrame
      */
+    
+    public class userDataObj{
+        public String Title;
+        public String data;
+        public boolean hidden;
+    }
+    
     private CryptoWalletDB walletDB;
+    private Map<String,String> dataMap;
     
     public MainFrame(CryptoWalletDB database) {
         initComponents();
@@ -27,10 +37,11 @@ public class MainFrame extends javax.swing.JFrame {
         this.setVisible(true);
         
         //decrypt the database
-        ArrayList<String>dataList=new ArrayList<String>();
+        JSONObject jsonObj;
         try{
-            dataList=walletDB.decryptDatabase();
-            //now we need to sort the data into groups etc.....
+            jsonObj=walletDB.decryptDatabase();
+            dataMap=(Map<String,String>)jsonObj;
+            displayGroups(dataMap);
             
         
         }
@@ -40,9 +51,35 @@ public class MainFrame extends javax.swing.JFrame {
         }
     }
     
-    //public void setDatabase(CryptoWalletDB database){
-    //    walletDB = database;
-    //}
+    private void displayGroups(Map<String,String> dataMap){
+        DefaultListModel model = new DefaultListModel();
+        for(String group:dataMap.keySet()){
+            model.addElement(group);
+        }
+        groupList.setModel(model);
+    }
+    
+    //----------------------------------------------------------------------
+    //get current group select and display the items in the selected group
+    //----------------------------------------------------------------------
+    private void displayItemList(){
+        String selectedGroup=(String)groupList.getSelectedValue();
+        DefaultListModel model = new DefaultListModel();
+        Object obj = dataMap.get(selectedGroup);
+        JSONArray jsonArray = (JSONArray)obj;
+        for(int n=0;n<jsonArray.size();n++){
+            Map<String,String> itemMap = (Map<String,String>)jsonArray.get(n);
+            
+            for(String itemName:itemMap.keySet()){
+                model.addElement(itemName);
+            }
+        }
+        
+        itemList.setModel(model);
+                   
+    }
+    
+   
 
     /**
      * This method is called from within the constructor to initialise the form.
@@ -68,6 +105,11 @@ public class MainFrame extends javax.swing.JFrame {
             String[] strings = { "Item 1", "Item 2", "Item 3", "Item 4", "Item 5" };
             public int getSize() { return strings.length; }
             public Object getElementAt(int i) { return strings[i]; }
+        });
+        groupList.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                groupListMouseClicked(evt);
+            }
         });
         jScrollPane2.setViewportView(groupList);
 
@@ -101,6 +143,10 @@ public class MainFrame extends javax.swing.JFrame {
 
         pack();
     }// </editor-fold>//GEN-END:initComponents
+
+    private void groupListMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_groupListMouseClicked
+        displayItemList();
+    }//GEN-LAST:event_groupListMouseClicked
 
     
     

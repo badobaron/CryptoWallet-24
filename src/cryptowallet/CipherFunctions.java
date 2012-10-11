@@ -33,7 +33,9 @@ public class CipherFunctions
             cipher = Cipher.getInstance(cipherAlg+"/CBC/PKCS5Padding");
             //cipher = Cipher.getInstance(cipherAlg+"/CBC/NoPadding");
             this.cipherAlg = cipherAlg;
-            this.iv = new IvParameterSpec(new byte[] {0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00});
+            this.iv = new IvParameterSpec(new byte[] {0x00,0x00,0x00,0x00,0x00,0x00,
+                                                        0x00,0x00,0x00,0x00,0x00,0x00,
+                                                        0x00,0x00,0x00,0x00});
         }
         catch (NoSuchAlgorithmException nsa)
         {

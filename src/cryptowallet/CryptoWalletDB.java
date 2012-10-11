@@ -4,12 +4,13 @@
  */
 package cryptowallet;
 
-import java.io.*;
-import java.util.Arrays;
-//import org.json.JSONArray;
-
-
-//import java.nio.file.Files;
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
+import java.io.FileReader;
+import java.io.FileWriter;
+import java.io.IOException;
+import org.json.simple.JSONObject;
+import org.json.simple.parser.JSONParser;
 
 /**
  *
@@ -24,6 +25,29 @@ public class CryptoWalletDB {
         crypto.setKey(password,salt);
     }
     
+    public static class PWCredentials{
+        public String hash;
+        public String salt;
+    }
+
+    
+    //database is JSON so we return a json object
+    public JSONObject decryptDatabase()throws Exception{
+        FileReader reader = new FileReader("/home/"+System.getProperty("user.name")+
+                "/.cryptowallet/cryptowalletdb");
+        BufferedReader bufReader = new BufferedReader(reader);
+        String line;
+        StringBuilder decryptedText=new StringBuilder("");
+        while((line = bufReader.readLine())!=null){
+            decryptedText.append(crypto.decryptText(line.trim()));
+        }
+        
+        bufReader.close();
+        
+        JSONParser parser = new JSONParser();
+        JSONObject jsonObj = (JSONObject)parser.parse(decryptedText.toString());
+        return jsonObj;
+    }
     
     public boolean writeNewBlankDatabase() throws IOException{
         //use cryptowallet_template as the basis for the new database
@@ -58,7 +82,7 @@ public class CryptoWalletDB {
         //File hashFile = new File("/home/"+System.getProperty("user.name")+"/.cryptowallet/hash.txt");
         try{
             FileWriter fwriter = new FileWriter("/home/"+System.getProperty("user.name")+
-                "/.cryptowallet/cryptowallet_hash.txt");
+                "/.cryptowallet/cryptowallet_hash");
             BufferedWriter writer = new BufferedWriter(fwriter);
             writer.write(hash+"\n");
             writer.write(salt+"\n");
@@ -71,6 +95,29 @@ public class CryptoWalletDB {
         
         return true;
     }
+    
+    
+    public static PWCredentials readHashAndSalt(){
+        PWCredentials cred = new PWCredentials();
+        
+        //open the hash file
+        try{
+            FileReader freader = new FileReader("/home/"+System.getProperty("user.name")+
+                "/.cryptowallet/cryptowallet_hash");
+            BufferedReader reader = new BufferedReader(freader);
+            //first line is has 2nd line is salt
+            cred.hash = reader.readLine();
+            cred.salt = reader.readLine();
+            reader.close();
+        }
+        catch(Exception e){
+            cred.hash="";
+            cred.salt="";
+            System.out.println(e.getMessage());
+        }
+        return cred;
+    }
+            
             
             
     

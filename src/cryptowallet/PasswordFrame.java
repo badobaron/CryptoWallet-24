@@ -24,11 +24,16 @@ public class PasswordFrame extends javax.swing.JFrame {
 
     private boolean gotPassword1=false;
     private char[] password1;
+    private CryptoWalletDB.PWCredentials credentials;
     
     
     /** Creates new form NewJFrame */
     public PasswordFrame() {
         initComponents();
+        setLocationRelativeTo(null);
+        setVisible(true);
+        passwordText.grabFocus();
+        passwordText.setEchoChar('#');
     }
 
     /** This method is called from within the constructor to
@@ -52,7 +57,7 @@ public class PasswordFrame extends javax.swing.JFrame {
         jScrollPane1.setViewportView(jTextPane1);
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
-        setTitle("Crypto Wallet 1.0");
+        setTitle("Crypto Wallet");
         setBackground(new java.awt.Color(0, 153, 204));
         setName("PasswordFrame"); // NOI18N
         setResizable(false);
@@ -77,7 +82,7 @@ public class PasswordFrame extends javax.swing.JFrame {
         passwordLabel.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(0, 0, 0)));
         passwordLabel.setOpaque(true);
 
-        jButton1.setLabel("cancelButton");
+        jButton1.setText("cancel");
         jButton1.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 jButton1ActionPerformed(evt);
@@ -124,9 +129,18 @@ public class PasswordFrame extends javax.swing.JFrame {
     }//GEN-LAST:event_passwordTextActionPerformed
 
     private void showMainFrame(){
-        JFrame mainFrame = new MainFrame();
-        mainFrame.setLocationRelativeTo(null);
-        mainFrame.setVisible(false);
+        try{
+            
+            CryptoWalletDB cryptodb = new CryptoWalletDB(password1,Convert.stringToHexBytes(credentials.salt));
+            new MainFrame(cryptodb);
+
+        }
+        catch(Exception e){
+            JOptionPane.showMessageDialog(rootPane, "Error creating database object/n"+e.getMessage(),"Cryptowallet Message",
+                        JOptionPane.ERROR_MESSAGE);
+        }
+            
+        this.dispose();
     }
     
     private void passwordTextKeyPressed(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_passwordTextKeyPressed
@@ -146,7 +160,7 @@ public class PasswordFrame extends javax.swing.JFrame {
                     //passwords match so check hash against stored value
                     if(!checkPasswordHashes(password1)){
                         gotPassword1=false;
-                         passwordText.setText("");
+                        passwordText.setText("");
                         passwordLabel.setText("Enter Master Password");
                     }
                     else{
@@ -160,7 +174,7 @@ public class PasswordFrame extends javax.swing.JFrame {
                     Arrays.fill(password2, '0');
                 }
                 else{
-                    System.out.println("PASSWORDS DO NOT MATCH!!!!!!!!!!!!!");
+                    JOptionPane.showMessageDialog(rootPane,"Passwords do not match\n");
                     gotPassword1=false;
                     passwordText.setText("");
                     passwordLabel.setText("Enter Master Password");
@@ -178,7 +192,7 @@ public class PasswordFrame extends javax.swing.JFrame {
     private boolean checkPasswordHashes(char[] passwordEntered){
         //get stored hash and salt value
         boolean result=true;
-        CryptoWalletDB.PWCredentials credentials = CryptoWalletDB.readHashAndSalt();
+        credentials = CryptoWalletDB.readHashAndSalt();
         if (!credentials.hash.isEmpty() && !credentials.salt.isEmpty()){
             
             //hash the given password
@@ -189,7 +203,7 @@ public class PasswordFrame extends javax.swing.JFrame {
             
             //check the hashes match
             if (genHash.compareTo(credentials.hash)!=0){
-                JOptionPane.showMessageDialog(rootPane,"Password in incorrect");
+                JOptionPane.showMessageDialog(rootPane,"Password incorrect");
                 result=false;
             }
              

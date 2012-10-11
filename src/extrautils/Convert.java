@@ -57,13 +57,15 @@ public class Convert
     }
 
 
-    public static byte[] stringToBytes(String dataIn){
-        byte[] bytes = new byte[dataIn.length()];
+    public static byte[] stringToBytes(String dataIn) throws Exception{
+        /*byte[] bytes = new byte[dataIn.length()];
         for(int i=0;i<dataIn.length();i++){
             bytes[i]=(byte)dataIn.charAt(i);
         }
 
-        return bytes;
+        return bytes;*/
+       
+        return dataIn.getBytes("UTF-8");
     }
 
 
