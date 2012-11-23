@@ -143,46 +143,26 @@ public class PasswordFrame extends javax.swing.JFrame {
         this.dispose();
     }
     
-    private void passwordTextKeyPressed(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_passwordTextKeyPressed
+    private void passwordTextKeyPressed(java.awt.event.KeyEvent evt) {                                        
         // TODO add your handling code here:
         if(evt.getKeyCode() == KeyEvent.VK_ENTER) {
-            if (gotPassword1==false){
-                password1=this.passwordText.getPassword();
-                passwordLabel.setText("Confirm Master Password");
+            password1=this.passwordText.getPassword();
+            if(!checkPasswordHashes(password1)){
+                JOptionPane.showMessageDialog(rootPane,"Password is incorrect\n");
+                gotPassword1=false;
                 passwordText.setText("");
-                gotPassword1=true;
+                passwordLabel.setText("Enter Master Password");
+                
             }
-            else if (gotPassword1){
-                //user is confirming the password
-                char[] password2=passwordText.getPassword();
-                //do the passwords match?
-                if (Arrays.equals(password1, password2)){
-                    //passwords match so check hash against stored value
-                    if(!checkPasswordHashes(password1)){
-                        gotPassword1=false;
-                        passwordText.setText("");
-                        passwordLabel.setText("Enter Master Password");
-                    }
-                    else{
-                        //passed so we can now show the main form
-                        showMainFrame();
-                        this.dispose();
-                    }
-                   
-                    //clear the passwords
-                    Arrays.fill(password1, '0');
-                    Arrays.fill(password2, '0');
-                }
-                else{
-                    JOptionPane.showMessageDialog(rootPane,"Passwords do not match\n");
-                    gotPassword1=false;
-                    passwordText.setText("");
-                    passwordLabel.setText("Enter Master Password");
-                }
-                    
+            else{
+                //passed so we can now show the main form                
+                showMainFrame();
+                Arrays.fill(password1, '0'); //clear the password
+                this.dispose();
             }
         }
-    }//GEN-LAST:event_passwordTextKeyPressed
+    } 
+  
 
     private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
         this.dispose();
