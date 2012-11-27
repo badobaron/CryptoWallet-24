@@ -4,11 +4,15 @@
  */
 package cryptowallet;
 
+import java.util.HashMap;
+import java.util.Iterator;
 import java.util.Map;
+import java.util.Set;
 import javax.swing.DefaultListModel;
 import javax.swing.JOptionPane;
-import org.json.simple.JSONObject;
+import javax.swing.table.DefaultTableModel;
 import org.json.simple.JSONArray;
+import org.json.simple.JSONObject;
 
 /**
  *
@@ -27,7 +31,7 @@ public class MainFrame extends javax.swing.JFrame {
     }
     
     private CryptoWalletDB walletDB;
-    private Map<String,String> dataMap;
+    private Map<String,JSONObject> dataMap;
     
     public MainFrame(CryptoWalletDB database) {
         initComponents();
@@ -40,7 +44,7 @@ public class MainFrame extends javax.swing.JFrame {
         JSONObject jsonObj;
         try{
             jsonObj=walletDB.decryptDatabase();
-            dataMap=(Map<String,String>)jsonObj;
+            dataMap=(Map<String,JSONObject>)jsonObj;
             displayGroups(dataMap);
             
         
@@ -51,7 +55,7 @@ public class MainFrame extends javax.swing.JFrame {
         }
     }
     
-    private void displayGroups(Map<String,String> dataMap){
+    private void displayGroups(Map<String,JSONObject> dataMap){
         DefaultListModel model = new DefaultListModel();
         for(String group:dataMap.keySet()){
             model.addElement(group);
@@ -62,20 +66,35 @@ public class MainFrame extends javax.swing.JFrame {
     //----------------------------------------------------------------------
     //get current group select and display the items in the selected group
     //----------------------------------------------------------------------
-    private void displayItemList(){
+    private void displayItemList(){        
         String selectedGroup=(String)groupList.getSelectedValue();
-        DefaultListModel model = new DefaultListModel();
+        DefaultTableModel model = new DefaultTableModel();
+        model.addColumn("entry");
+        model.addColumn("user name");
+        model.addColumn("password");
+        model.addColumn("show/hide");
         Object obj = dataMap.get(selectedGroup);
-        JSONArray jsonArray = (JSONArray)obj;
+        JSONArray jsonArray = (JSONArray)obj;     
         for(int n=0;n<jsonArray.size();n++){
-            Map<String,String> itemMap = (Map<String,String>)jsonArray.get(n);
-            
-            for(String itemName:itemMap.keySet()){
-                model.addElement(itemName);
+            Map<String,JSONObject> itemMap = (Map<String,JSONObject>)jsonArray.get(n);            
+            Set itemSet = itemMap.entrySet();
+            Iterator iter = itemSet.iterator();
+            while(iter.hasNext()){
+                //key=entry name ; Value is json object username,password etc
+                Map.Entry detailMapEntry = (Map.Entry)iter.next();
+
+                JSONArray ent = (JSONArray)detailMapEntry.getValue(); 
+                JSONObject userObj = (JSONObject)ent.get(0); //username
+                JSONObject passObj= (JSONObject)ent.get(1); //password
+                
+                //update table entry
+                String[] row = {(String)detailMapEntry.getKey(),
+                        (String)userObj.get("username"),
+                        (String)passObj.get("password")};
+                model.addRow(row);                
             }
         }
-        
-        itemList.setModel(model);
+        itemTable.setModel(model);
                    
     }
     
@@ -93,8 +112,8 @@ public class MainFrame extends javax.swing.JFrame {
         jSplitPane1 = new javax.swing.JSplitPane();
         jScrollPane2 = new javax.swing.JScrollPane();
         groupList = new javax.swing.JList();
-        jScrollPane1 = new javax.swing.JScrollPane();
-        itemList = new javax.swing.JList();
+        jScrollPane3 = new javax.swing.JScrollPane();
+        itemTable = new javax.swing.JTable();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
         setTitle("Crypto Wallet");
@@ -115,14 +134,25 @@ public class MainFrame extends javax.swing.JFrame {
 
         jSplitPane1.setLeftComponent(jScrollPane2);
 
-        itemList.setModel(new javax.swing.AbstractListModel() {
-            String[] strings = { "Item 1", "Item 2", "Item 3", "Item 4", "Item 5" };
-            public int getSize() { return strings.length; }
-            public Object getElementAt(int i) { return strings[i]; }
-        });
-        jScrollPane1.setViewportView(itemList);
+        itemTable.setModel(new javax.swing.table.DefaultTableModel(
+            new Object [][] {
 
-        jSplitPane1.setRightComponent(jScrollPane1);
+            },
+            new String [] {
+                "entry", "user name", "password", "show/hide"
+            }
+        ) {
+            boolean[] canEdit = new boolean [] {
+                false, false, false, false
+            };
+
+            public boolean isCellEditable(int rowIndex, int columnIndex) {
+                return canEdit [columnIndex];
+            }
+        });
+        jScrollPane3.setViewportView(itemTable);
+
+        jSplitPane1.setRightComponent(jScrollPane3);
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
@@ -152,9 +182,9 @@ public class MainFrame extends javax.swing.JFrame {
     
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JList groupList;
-    private javax.swing.JList itemList;
-    private javax.swing.JScrollPane jScrollPane1;
+    private javax.swing.JTable itemTable;
     private javax.swing.JScrollPane jScrollPane2;
+    private javax.swing.JScrollPane jScrollPane3;
     private javax.swing.JSplitPane jSplitPane1;
     // End of variables declaration//GEN-END:variables
 }
